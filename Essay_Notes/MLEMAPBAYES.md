@@ -1,1074 +1,124 @@
-{
-  "cells": [
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "# MLE、MAP 与贝叶斯估计：  \n",
-        "## 从二范数、先验到后验分布\n",
-        "\n",
-        "**Author: Y.Qiu**"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "## 引言\n",
-        "\n",
-        "在统计学习与机器学习中，参数估计常见的三种思想分别是：\n",
-        "\n",
-        "- **MLE（Maximum Likelihood Estimation，极大似然估计）**：只利用观测数据，通过最大化似然函数来估计参数；\n",
-        "- **MAP（Maximum A Posteriori，最大后验估计）**：在似然的基础上进一步引入参数的先验信息；\n",
-        "- **Bayes Estimation（贝叶斯估计）**：不只给出单个参数点，而是给出参数的完整后验分布，并根据具体损失函数导出不同的最优点估计。\n",
-        "\n",
-        "这三者之间并不是彼此割裂的，而是构成了一个逐层推广的统一框架：\n",
-        "\n",
-        "$$\n",
-        "\\text{MLE} \\quad \\longrightarrow \\quad \\text{MAP} \\quad \\longrightarrow \\quad \\text{Bayesian Estimation}.\n",
-        "$$\n",
-        "\n",
-        "本文主要针对以下问题进行了回答：\n",
-        "\n",
-        "1. 为什么 MLE 在高斯噪声假设下等价于最小化二范数（MSE）；\n",
-        "2. 为什么这里**正态噪声假设是关键**；\n",
-        "3. 在正态先验与 Laplace 先验下，为什么 MAP 分别等价于\n",
-        "\n",
-        "$$\n",
-        "\\text{MSE} + L_2 \\text{正则}, \\qquad \\text{MSE} + L_1 \\text{正则} ;\n",
-        "$$\n",
-        "\n",
-        "4. 贝叶斯估计为什么能给出完整分布，而不仅仅是一个点；\n",
-        "5. 为什么在不同损失函数下，后验均值、后验众数、后验中位数分别成为最优点估计。"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "## 1. MLE：极大似然估计\n",
-        "\n",
-        "### 1.1 基本定义\n",
-        "\n",
-        "设观测数据为\n",
-        "\n",
-        "$$\n",
-        "\\mathcal{D} = \\{x_1,\\dots,x_n\\},\n",
-        "$$\n",
-        "\n",
-        "模型参数为 $\\theta$。若已知数据在给定参数 $\\theta$ 下的概率模型为 $p(\\mathcal{D}\\mid \\theta)$，则极大似然估计定义为\n",
-        "\n",
-        "$$\n",
-        "\\hat{\\theta}_{\\mathrm{MLE}}\n",
-        "=\n",
-        "\\arg\\max_{\\theta} p(\\mathcal{D}\\mid \\theta).\n",
-        "$$\n",
-        "\n",
-        "由于对数函数单调递增，上式等价于\n",
-        "\n",
-        "$$\n",
-        "\\hat{\\theta}_{\\mathrm{MLE}}\n",
-        "=\n",
-        "\\arg\\max_{\\theta} \\log p(\\mathcal{D}\\mid \\theta)\n",
-        "=\n",
-        "\\arg\\min_{\\theta} \\big(-\\log p(\\mathcal{D}\\mid \\theta)\\big).\n",
-        "$$\n",
-        "\n",
-        "因此，**MLE 的本质就是最小化负对数似然（negative log-likelihood）。换句话说，MLE 的本质是找到一组参数，使得在这组参数下，观测到的数据出现的概率最大。**"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### 1.2 线性回归模型中的 MLE\n",
-        "\n",
-        "考虑经典线性回归模型\n",
-        "\n",
-        "$$\n",
-        "\\bm{y} = X\\bm{\\theta} + \\bm{\\epsilon},\n",
-        "\\qquad\n",
-        "\\bm{\\epsilon} \\sim \\mathcal{N}(\\bm{0},\\sigma^2 I),\n",
-        "$$\n",
-        "\n",
-        "其中：\n",
-        "\n",
-        "- $\\bm{y}\\in\\mathbb{R}^n$ 为观测向量；\n",
-        "- $X\\in\\mathbb{R}^{n\\times d}$ 为设计矩阵；\n",
-        "- $\\bm{\\theta}\\in\\mathbb{R}^d$ 为待估参数；\n",
-        "- $\\bm{\\epsilon}$ 为高斯噪声。\n",
-        "\n",
-        "由\n",
-        "\n",
-        "$$\n",
-        "\\bm{y} = X\\bm{\\theta} + \\bm{\\epsilon},\n",
-        "\\qquad\n",
-        "\\bm{\\epsilon} \\sim \\mathcal{N}(\\bm{0},\\sigma^2 I),\n",
-        "$$\n",
-        "\n",
-        "可知条件分布为\n",
-        "\n",
-        "$$\n",
-        "\\bm{y}\\mid \\bm{\\theta}\n",
-        "\\sim\n",
-        "\\mathcal{N}(X\\bm{\\theta},\\,\\sigma^2 I).\n",
-        "$$\n",
-        "\n",
-        "因此其概率密度函数为\n",
-        "\n",
-        "$$\n",
-        "p(\\bm{y}\\mid \\bm{\\theta})\n",
-        "=\n",
-        "\\frac{1}{(2\\pi \\sigma^2)^{n/2}}\n",
-        "\\exp\\left(\n",
-        "-\\frac{1}{2\\sigma^2}\n",
-        "(\\bm{y}-X\\bm{\\theta})^T(\\bm{y}-X\\bm{\\theta})\n",
-        "\\right).\n",
-        "$$\n",
-        "\n",
-        "取对数得\n",
-        "\n",
-        "$$\n",
-        "\\log p(\\bm{y}\\mid \\bm{\\theta})\n",
-        "=\n",
-        "-\\frac{n}{2}\\log(2\\pi\\sigma^2)\n",
-        "-\\frac{1}{2\\sigma^2}\n",
-        "(\\bm{y}-X\\bm{\\theta})^T(\\bm{y}-X\\bm{\\theta}).\n",
-        "$$\n",
-        "\n",
-        "由于第一项与 $\\bm{\\theta}$ 无关，因此最大化对数似然等价于最小化\n",
-        "\n",
-        "$$\n",
-        "(\\bm{y}-X\\bm{\\theta})^T(\\bm{y}-X\\bm{\\theta})\n",
-        "=\n",
-        "\\|\\bm{y}-X\\bm{\\theta}\\|_2^2.\n",
-        "$$\n",
-        "\n",
-        "于是得到\n",
-        "\n",
-        "$$\n",
-        "\\hat{\\bm{\\theta}}_{\\mathrm{MLE}}\n",
-        "=\n",
-        "\\arg\\min_{\\bm{\\theta}}\n",
-        "\\|\\bm{y}-X\\bm{\\theta}\\|_2^2.\n",
-        "$$"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### 1.3 为什么 MLE 等价于二范数？\n",
-        "\n",
-        "这里必须强调：\n",
-        "\n",
-        "> **MLE 等价于二范数，是因为噪声被假设为高斯分布，进而可以把由设计矩阵到观测向量的映射吃到高斯噪声里面。**\n",
-        "\n",
-        "事实上，只要模型写成\n",
-        "\n",
-        "$$\n",
-        "y_i = f_{\\theta}(x_i) + \\epsilon_i,\n",
-        "\\qquad\n",
-        "\\epsilon_i \\sim \\mathcal{N}(0,\\sigma^2),\n",
-        "$$\n",
-        "\n",
-        "无论 $f_{\\theta}(x)$ 是线性函数还是非线性函数，都有\n",
-        "\n",
-        "$$\n",
-        "y_i \\mid x_i,\\theta \\sim \\mathcal{N}(f_{\\theta}(x_i),\\sigma^2),\n",
-        "$$\n",
-        "\n",
-        "从而\n",
-        "\n",
-        "$$\n",
-        "p(y_i\\mid x_i,\\theta)\n",
-        "=\n",
-        "\\frac{1}{\\sqrt{2\\pi\\sigma^2}}\n",
-        "\\exp\\left(\n",
-        "-\\frac{(y_i-f_{\\theta}(x_i))^2}{2\\sigma^2}\n",
-        "\\right).\n",
-        "$$\n",
-        "\n",
-        "对独立样本求联合似然并取负对数，得到\n",
-        "\n",
-        "$$\n",
-        "-\\log p(\\mathcal{D}\\mid \\theta)\n",
-        "=\n",
-        "\\text{常数项}\n",
-        "+\n",
-        "\\frac{1}{2\\sigma^2}\n",
-        "\\sum_{i=1}^n\n",
-        "(y_i-f_{\\theta}(x_i))^2.\n",
-        "$$\n",
-        "\n",
-        "因此\n",
-        "\n",
-        "$$\n",
-        "\\hat{\\theta}_{\\mathrm{MLE}}\n",
-        "=\n",
-        "\\arg\\min_{\\theta}\n",
-        "\\sum_{i=1}^n\n",
-        "(y_i-f_{\\theta}(x_i))^2.\n",
-        "$$\n",
-        "\n",
-        "所以二范数（或均方误差，MSE）对应的根源是：\n",
-        "\n",
-        "$$\n",
-        "\\boxed{\\text{高斯噪声} \\;\\Longrightarrow\\; \\text{平方误差损失}}.\n",
-        "$$"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### 1.4 为什么正态噪声如此重要？\n",
-        "\n",
-        "正态噪声的重要性体现在以下三点：\n",
-        "\n",
-        "1. **负对数似然恰好是平方误差**。正如上文的推导，正态噪声使得优化目标具有非常清晰的解析形式；\n",
-        "2. **数学处理方便**。高斯分布在线性变换、加和、条件分布等运算下封闭，推导非常整洁；\n",
-        "3. **统计学意义深刻**。许多独立微小随机扰动的叠加在中心极限定理下近似服从正态分布，因此高斯噪声在很多场景下是合理的一阶近似。\n",
-        "\n",
-        "**但也要指出：若噪声并非高斯，则 MLE 通常不再对应平方误差。** 例如：\n",
-        "\n",
-        "- 若 $\\epsilon$ 服从 Laplace 分布，则对应 $L_1$ 损失；\n",
-        "- 若观测服从 Bernoulli 分布，则对应交叉熵损失；\n",
-        "- 若观测为计数且服从 Poisson 或 Negative Binomial，则对应 Poisson/NB 的负对数似然，而不是 MSE。\n",
-        "\n",
-        "因此，**损失函数的选择本质上是概率模型选择的结果。**"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "## 2. MAP：最大后验估计\n",
-        "\n",
-        "### 2.1 MAP 的定义\n",
-        "\n",
-        "与 MLE 只利用似然不同，MAP 还引入参数先验 $p(\\theta)$。根据贝叶斯公式，\n",
-        "\n",
-        "$$\n",
-        "p(\\theta\\mid \\mathcal{D})\n",
-        "=\n",
-        "\\frac{p(\\mathcal{D}\\mid \\theta)p(\\theta)}{p(\\mathcal{D})}.\n",
-        "$$\n",
-        "\n",
-        "因此最大后验估计定义为\n",
-        "\n",
-        "$$\n",
-        "\\hat{\\theta}_{\\mathrm{MAP}}\n",
-        "=\n",
-        "\\arg\\max_{\\theta} p(\\theta\\mid \\mathcal{D}).\n",
-        "$$\n",
-        "\n",
-        "由于 $p(\\mathcal{D})$ 与 $\\theta$ 无关，可写为\n",
-        "\n",
-        "$$\n",
-        "\\hat{\\theta}_{\\mathrm{MAP}}\n",
-        "=\n",
-        "\\arg\\max_{\\theta} p(\\mathcal{D}\\mid \\theta)p(\\theta).\n",
-        "$$\n",
-        "\n",
-        "再取对数：\n",
-        "\n",
-        "$$\n",
-        "\\hat{\\theta}_{\\mathrm{MAP}}\n",
-        "=\n",
-        "\\arg\\max_{\\theta}\n",
-        "\\big[\n",
-        "\\log p(\\mathcal{D}\\mid \\theta) + \\log p(\\theta)\n",
-        "\\big].\n",
-        "$$\n",
-        "\n",
-        "等价地，\n",
-        "\n",
-        "$$\n",
-        "\\hat{\\theta}_{\\mathrm{MAP}}\n",
-        "=\n",
-        "\\arg\\min_{\\theta}\n",
-        "\\big[\n",
-        "-\\log p(\\mathcal{D}\\mid \\theta) - \\log p(\\theta)\n",
-        "\\big].\n",
-        "$$\n",
-        "\n",
-        "于是得到 MAP 的损失函数：\n",
-        "\n",
-        "$$\n",
-        "\\boxed{\n",
-        "L_{\\mathrm{MAP}}(\\theta)\n",
-        "=\n",
-        "-\\log p(\\mathcal{D}\\mid \\theta)\n",
-        "-\\log p(\\theta)\n",
-        "}\n",
-        "$$\n",
-        "\n",
-        "这说明：\n",
-        "\n",
-        "> **MAP = 负对数似然 + 先验诱导的正则项**"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### 2.2 MAP 比 MLE 更稳健的原因\n",
-        "\n",
-        "MLE 只依赖观测数据。当样本很少时，似然函数往往不稳定，参数估计容易出现高方差、过拟合等问题。\n",
-        "\n",
-        "而 MAP 在优化中额外加入了先验项 $-\\log p(\\theta)$，因此会把参数限制在一个先验认为更合理的区域。这意味着：\n",
-        "\n",
-        "- **小样本时**：先验影响显著，能提高稳定性；\n",
-        "- **大样本时**：似然逐渐主导，MAP 往往趋近于 MLE。"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "## 3. MAP 与正则化的完全推导\n",
-        "\n",
-        "下面在同样的高斯观测模型下，分别考虑正态先验与 Laplace 先验。\n",
-        "\n",
-        "### 3.1 观测模型：高斯噪声对应 MSE\n",
-        "\n",
-        "$$\n",
-        "\\boxed{\n",
-        "L_{\\mathrm{MAP}}(\\theta)\n",
-        "=\n",
-        "-\\log p(\\mathcal{D}\\mid \\theta)\n",
-        "-\\log p(\\theta)\n",
-        "}\n",
-        "$$\n",
-        "\n",
-        "对于上式中的前半部分，实际上就是我们前面推导的 MLE 的部分，我们已经证明这部分在高斯噪声的假设下等价于二范数。所以这个 MAP 的损失函数可以看为：\n",
-        "\n",
-        "$$\n",
-        "L_{\\mathrm{MAP}}(\\theta)=\\hat{\\theta}_{\\mathrm{MLE}}-\\log p(\\theta)\n",
-        "$$\n",
-        "\n",
-        "其中\n",
-        "\n",
-        "$$\n",
-        "\\hat{\\bm{\\theta}}_{\\mathrm{MLE}}\n",
-        "=\n",
-        "\\arg\\min_{\\bm{\\theta}}\n",
-        "\\|\\bm{y}-X\\bm{\\theta}\\|_2^2.\n",
-        "$$\n",
-        "\n",
-        "为了方便，后面就都以上面的线性回归情况为例来说明。事实上对于下面的非线性情况本节结论也成立。\n",
-        "\n",
-        "$$\n",
-        "\\hat{\\theta}_{\\mathrm{MLE}}\n",
-        "=\n",
-        "\\arg\\min_{\\theta}\n",
-        "\\sum_{i=1}^n\n",
-        "(y_i-f_{\\theta}(x_i))^2.\n",
-        "$$\n",
-        "\n",
-        "下面我们将目光集中在后面关于参数的这一项上。"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### 3.2 情形一：正态先验 $\\Longrightarrow$ $L_2$ 正则\n",
-        "\n",
-        "假设参数先验为\n",
-        "\n",
-        "$$\n",
-        "\\bm{\\theta} \\sim \\mathcal{N}(\\bm{0},\\tau^2 I).\n",
-        "$$\n",
-        "\n",
-        "则先验密度为\n",
-        "\n",
-        "$$\n",
-        "p(\\bm{\\theta})\n",
-        "=\n",
-        "\\frac{1}{(2\\pi\\tau^2)^{d/2}}\n",
-        "\\exp\\left(\n",
-        "-\\frac{1}{2\\tau^2}\n",
-        "\\bm{\\theta}^T\\bm{\\theta}\n",
-        "\\right).\n",
-        "$$\n",
-        "\n",
-        "取负对数：\n",
-        "\n",
-        "$$\n",
-        "-\\log p(\\bm{\\theta})\n",
-        "=\n",
-        "\\frac{d}{2}\\log(2\\pi\\tau^2)\n",
-        "+\n",
-        "\\frac{1}{2\\tau^2}\n",
-        "\\|\\bm{\\theta}\\|_2^2.\n",
-        "$$\n",
-        "\n",
-        "忽略常数项：\n",
-        "\n",
-        "$$\n",
-        "-\\log p(\\bm{\\theta})\n",
-        "\\equiv\n",
-        "\\frac{1}{2\\tau^2}\n",
-        "\\|\\bm{\\theta}\\|_2^2.\n",
-        "$$\n",
-        "\n",
-        "因此 MAP 目标函数为\n",
-        "\n",
-        "$$\n",
-        "L_{\\mathrm{MAP}}(\\bm{\\theta})\n",
-        "=\n",
-        "\\frac{1}{2\\sigma^2}\n",
-        "\\|\\bm{y}-X\\bm{\\theta}\\|_2^2\n",
-        "+\n",
-        "\\frac{1}{2\\tau^2}\n",
-        "\\|\\bm{\\theta}\\|_2^2.\n",
-        "$$\n",
-        "\n",
-        "两边同乘 $2\\sigma^2$，不改变最优解，得\n",
-        "\n",
-        "$$\n",
-        "\\hat{\\bm{\\theta}}_{\\mathrm{MAP}}\n",
-        "=\n",
-        "\\arg\\min_{\\bm{\\theta}}\n",
-        "\\left[\n",
-        "\\|\\bm{y}-X\\bm{\\theta}\\|_2^2\n",
-        "+\n",
-        "\\lambda \\|\\bm{\\theta}\\|_2^2\n",
-        "\\right],\n",
-        "$$\n",
-        "\n",
-        "其中\n",
-        "\n",
-        "$$\n",
-        "\\lambda = \\frac{\\sigma^2}{\\tau^2}.\n",
-        "$$\n",
-        "\n",
-        "这正是 Ridge 回归的形式。  \n",
-        "因此有\n",
-        "\n",
-        "$$\n",
-        "\\boxed{\n",
-        "\\text{Gaussian likelihood} + \\text{Gaussian prior}\n",
-        "\\Longrightarrow\n",
-        "\\text{MSE} + L_2 \\text{ regularization}\n",
-        "}\n",
-        "$$"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### 3.3 情形二：Laplace 先验 $\\Longrightarrow$ $L_1$ 正则\n",
-        "\n",
-        "现在假设各个参数分量独立，且\n",
-        "\n",
-        "$$\n",
-        "p(\\theta_j)\n",
-        "=\n",
-        "\\frac{\\lambda}{2}\n",
-        "\\exp(-\\lambda |\\theta_j|),\n",
-        "\\qquad j=1,\\dots,d.\n",
-        "$$\n",
-        "\n",
-        "则联合先验为\n",
-        "\n",
-        "$$\n",
-        "p(\\bm{\\theta})\n",
-        "=\n",
-        "\\prod_{j=1}^d \\frac{\\lambda}{2}\\exp(-\\lambda |\\theta_j|)\n",
-        "=\n",
-        "\\left(\\frac{\\lambda}{2}\\right)^d\n",
-        "\\exp\\left(\n",
-        "-\\lambda \\sum_{j=1}^d |\\theta_j|\n",
-        "\\right).\n",
-        "$$\n",
-        "\n",
-        "注意\n",
-        "\n",
-        "$$\n",
-        "\\sum_{j=1}^d |\\theta_j| = \\|\\bm{\\theta}\\|_1.\n",
-        "$$\n",
-        "\n",
-        "因此\n",
-        "\n",
-        "$$\n",
-        "p(\\bm{\\theta})\n",
-        "=\n",
-        "\\left(\\frac{\\lambda}{2}\\right)^d\n",
-        "\\exp(-\\lambda \\|\\bm{\\theta}\\|_1).\n",
-        "$$\n",
-        "\n",
-        "取负对数得\n",
-        "\n",
-        "$$\n",
-        "-\\log p(\\bm{\\theta})\n",
-        "=\n",
-        "-d\\log\\frac{\\lambda}{2}\n",
-        "+\n",
-        "\\lambda \\|\\bm{\\theta}\\|_1.\n",
-        "$$\n",
-        "\n",
-        "忽略常数项：\n",
-        "\n",
-        "$$\n",
-        "-\\log p(\\bm{\\theta})\n",
-        "\\equiv\n",
-        "\\lambda \\|\\bm{\\theta}\\|_1.\n",
-        "$$\n",
-        "\n",
-        "于是 MAP 目标函数变为\n",
-        "\n",
-        "$$\n",
-        "L_{\\mathrm{MAP}}(\\bm{\\theta})\n",
-        "=\n",
-        "\\frac{1}{2\\sigma^2}\n",
-        "\\|\\bm{y}-X\\bm{\\theta}\\|_2^2\n",
-        "+\n",
-        "\\lambda \\|\\bm{\\theta}\\|_1.\n",
-        "$$\n",
-        "\n",
-        "乘以 $2\\sigma^2$ 后可重写为\n",
-        "\n",
-        "$$\n",
-        "\\hat{\\bm{\\theta}}_{\\mathrm{MAP}}\n",
-        "=\n",
-        "\\arg\\min_{\\bm{\\theta}}\n",
-        "\\left[\n",
-        "\\|\\bm{y}-X\\bm{\\theta}\\|_2^2\n",
-        "+\n",
-        "\\lambda' \\|\\bm{\\theta}\\|_1\n",
-        "\\right],\n",
-        "$$\n",
-        "\n",
-        "其中 $\\lambda' = 2\\sigma^2\\lambda$。\n",
-        "\n",
-        "因此有\n",
-        "\n",
-        "$$\n",
-        "\\boxed{\n",
-        "\\text{Gaussian likelihood} + \\text{Laplace prior}\n",
-        "\\Longrightarrow\n",
-        "\\text{MSE} + L_1 \\text{ regularization}\n",
-        "}\n",
-        "$$"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### 3.4 小结：先验与正则化的一一对应\n",
-        "\n",
-        "| 观测噪声 | 参数先验 | MAP 对应损失 |\n",
-        "|---|---|---|\n",
-        "| Gaussian | Gaussian | MSE $+\\, L_2$ 正则 |\n",
-        "| Gaussian | Laplace | MSE $+\\, L_1$ 正则 |\n",
-        "\n",
-        "因此可以说：\n",
-        "\n",
-        "$$\n",
-        "\\boxed{\n",
-        "\\text{正则化项本质上就是先验分布的负对数}\n",
-        "}\n",
-        "$$"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "## 4. Bayes：完整后验分布而不是单个点\n",
-        "\n",
-        "### 4.1 MLE 与 MAP 都是点估计\n",
-        "\n",
-        "MLE 和 MAP 最终都给出一个参数值：\n",
-        "\n",
-        "$$\n",
-        "\\hat{\\theta}_{\\mathrm{MLE}}, \\qquad \\hat{\\theta}_{\\mathrm{MAP}}.\n",
-        "$$\n",
-        "\n",
-        "因此它们属于**点估计（point estimation）**。\n",
-        "\n",
-        "点估计的特点是：\n",
-        "\n",
-        "- 输出简单；\n",
-        "- 便于优化与部署；\n",
-        "- 但无法直接反映不确定性。\n",
-        "\n",
-        "例如，若只给出一个参数值 $\\hat{\\theta}=2.5$，我们并不知道这个估计是“非常确定”还是“其实可能在 $[1.0,4.0]$ 内都合理”。"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### 4.2 贝叶斯估计给出的是什么？\n",
-        "\n",
-        "贝叶斯方法不满足于只求一个最优参数，而是通过贝叶斯公式求整个后验分布：\n",
-        "\n",
-        "$$\n",
-        "p(\\theta\\mid \\mathcal{D})\n",
-        "=\n",
-        "\\frac{p(\\mathcal{D}\\mid \\theta)p(\\theta)}{p(\\mathcal{D})}.\n",
-        "$$\n",
-        "\n",
-        "这里：\n",
-        "\n",
-        "- $p(\\theta)$ 表示在看到数据前，对参数的先验认识；\n",
-        "- $p(\\mathcal{D}\\mid \\theta)$ 表示数据在参数 $\\theta$ 下出现的可能性；\n",
-        "- $p(\\theta\\mid \\mathcal{D})$ 表示看到数据后，对参数不确定性的更新。\n",
-        "\n",
-        "因此，贝叶斯估计输出的是：\n",
-        "\n",
-        "$$\n",
-        "\\boxed{\n",
-        "\\text{参数的整个后验分布 } p(\\theta\\mid \\mathcal{D})\n",
-        "}\n",
-        "$$\n",
-        "\n",
-        "而不仅仅是一个点。  \n",
-        "\n",
-        "例如，若\n",
-        "\n",
-        "$$\n",
-        "\\theta\\mid \\mathcal{D} \\sim \\mathcal{N}(2.5,0.1^2),\n",
-        "$$\n",
-        "\n",
-        "说明参数高度集中在 $2.5$ 附近，不确定性较小；  \n",
-        "而若\n",
-        "\n",
-        "$$\n",
-        "\\theta\\mid \\mathcal{D} \\sim \\mathcal{N}(2.5,2^2),\n",
-        "$$\n",
-        "\n",
-        "则说明虽然均值同样是 $2.5$，但不确定性远大得多。"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### 4.3 为什么贝叶斯方法能“给出分布”？\n",
-        "\n",
-        "这是因为在贝叶斯框架中，参数本身被看作随机变量。  \n",
-        "先验 $p(\\theta)$ 表示参数在观测数据之前可能取哪些值；观测到数据后，用似然对其加权，得到后验：\n",
-        "\n",
-        "$$\n",
-        "p(\\theta\\mid \\mathcal{D})\n",
-        "\\propto\n",
-        "p(\\mathcal{D}\\mid \\theta)p(\\theta).\n",
-        "$$\n",
-        "\n",
-        "$p(\\theta)$ 称为先验权重，表示“在看数据之前，我有多相信这个参数值”。  \n",
-        "$p(\\mathcal{D}\\mid \\theta)$ 称为似然权重，表示“如果参数真的是这个值，那么当前数据出现的可能性有多大”。  \n",
-        "两者相乘就得到“看完数据之后，这个参数值该有多可信”。也就是说，所有可能的参数值都被保留下来，只是其“可信程度”根据数据重新分配了权重。\n",
-        "\n",
-        "需要进一步说明的是，后验分布 $p(\\theta|\\mathcal D)$ 的计算来源于贝叶斯公式：\n",
-        "\n",
-        "$$\n",
-        "p(\\theta|\\mathcal D)\n",
-        "=\n",
-        "\\frac{p(\\mathcal D|\\theta)p(\\theta)}{p(\\mathcal D)},\n",
-        "\\quad\n",
-        "p(\\mathcal D)\n",
-        "=\n",
-        "\\int p(\\mathcal D|\\theta)p(\\theta)\\,d\\theta.\n",
-        "$$\n",
-        "\n",
-        "其中分母 $p(\\mathcal D)$ 是对参数空间的积分：\n",
-        "\n",
-        "$$\n",
-        "p(\\mathcal D) = \\int p(\\mathcal D|\\theta)p(\\theta)\\,d\\theta,\n",
-        "$$\n",
-        "\n",
-        "通常难以解析计算。因此，在大多数实际问题中，后验分布 $p(\\theta|\\mathcal D)$ 往往无法得到闭式表达。\n",
-        "\n",
-        "不过，在某些任务中并不需要显式计算该归一化常数。例如，在求解 MAP（最大后验估计）或进行基于比值的采样方法（如 MCMC）时，由于 $p(\\mathcal D)$ 与参数 $\\theta$ 无关，可以在优化或计算中忽略，从而仅使用未归一化形式\n",
-        "\n",
-        "$$\n",
-        "p(\\theta|\\mathcal D) \\propto p(\\mathcal D|\\theta)p(\\theta).\n",
-        "$$\n",
-        "\n",
-        "然而，在需要进行后验预测（详见 5.5 节）或计算期望时，例如\n",
-        "\n",
-        "$$\n",
-        "p(y^\\ast|x^\\ast,\\mathcal D)\n",
-        "=\n",
-        "\\int p(y^\\ast|x^\\ast,\\theta)p(\\theta|\\mathcal D)\\,d\\theta,\n",
-        "$$\n",
-        "\n",
-        "必须使用归一化后的后验分布。否则，由于权重未正确归一化，会导致结果失去概率解释，并影响预测的准确性与不确定性刻画。\n",
-        "\n",
-        "在一些特殊情形下（例如高斯似然与高斯先验的组合），后验分布仍属于同一分布族，从而可以得到解析解；而在更一般的情况下，则需要借助近似方法（如 MAP、Laplace 近似、变分推断或 MCMC 采样）来刻画后验分布。"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### 4.4 后验分布如何表达不确定性？\n",
-        "\n",
-        "一旦得到后验分布，就可以计算：\n",
-        "\n",
-        "- **后验均值**：反映平均估计；\n",
-        "- **后验方差**：反映不确定性大小；\n",
-        "- **可信区间**（credible interval）：反映参数落在某一区间内的后验概率；\n",
-        "- **后验预测分布**：反映未来观测的不确定性。"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### 4.5 后验预测分布\n",
-        "\n",
-        "在实际问题中，我们往往关心新样本 $y^\\ast$ 的预测。贝叶斯方法不把参数固定成单一点，而是对所有参数值进行积分平均：\n",
-        "\n",
-        "$$\n",
-        "p(y^\\ast\\mid x^\\ast,\\mathcal{D})\n",
-        "=\n",
-        "\\int p(y^\\ast\\mid x^\\ast,\\theta)\\,p(\\theta\\mid \\mathcal{D})\\,d\\theta.\n",
-        "$$\n",
-        "\n",
-        "这说明预测结果同时考虑了：\n",
-        "\n",
-        "- 数据噪声；\n",
-        "- 参数不确定性。\n",
-        "\n",
-        "这也是贝叶斯方法相比普通点估计更完整的地方。"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "## 5. Bayes 估计框架下不同损失函数对应不同点估计的数学推导\n",
-        "\n",
-        "### 5.1 贝叶斯决策论框架\n",
-        "\n",
-        "假设我们已经得到了参数的后验分布 $p(\\theta\\mid \\mathcal{D})$。但需要强调的是，在贝叶斯框架中，后验分布 $p(\\theta|\\mathcal D)$ 已经包含了关于参数的不确定性信息，因此理论上可以直接用于预测（通过后验预测分布）。然而，**在许多实际任务中（例如回归输出、分类决策或控制问题），仍然需要输出一个具体的数值或决策。** 因此，需要在后验分布基础上进一步引入损失函数，并通过最小化后验期望损失来得到点估计。换言之，点估计并不是贝叶斯推断的目标，而是决策过程的结果。\n",
-        "\n",
-        "如果现在想从中提取一个点估计 $a$，则应该最小化该点估计在后验下的**后验期望损失**：\n",
-        "\n",
-        "$$\n",
-        "a^\\ast\n",
-        "=\n",
-        "\\arg\\min_{a}\n",
-        "\\mathbb{E}_{\\theta\\mid \\mathcal{D}}\n",
-        "\\big[\n",
-        "L(a,\\theta)\n",
-        "\\big]\n",
-        "=\n",
-        "\\arg\\min_a\n",
-        "\\int L(a,\\theta)\\,p(\\theta\\mid \\mathcal{D})\\,d\\theta.\n",
-        "$$\n",
-        "\n",
-        "不同的损失函数 $L(a,\\theta)$ 会给出不同的最优点估计。"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### 5.2 平方损失对应后验均值\n",
-        "\n",
-        "取平方损失\n",
-        "\n",
-        "$$\n",
-        "L(a,\\theta) = (a-\\theta)^2.\n",
-        "$$\n",
-        "\n",
-        "则目标函数为\n",
-        "\n",
-        "$$\n",
-        "R(a)\n",
-        "=\n",
-        "\\int (a-\\theta)^2 p(\\theta\\mid \\mathcal{D})\\,d\\theta.\n",
-        "$$\n",
-        "\n",
-        "对 $a$ 求导：\n",
-        "\n",
-        "$$\n",
-        "\\frac{dR(a)}{da}\n",
-        "=\n",
-        "\\int 2(a-\\theta)\\,p(\\theta\\mid \\mathcal{D})\\,d\\theta\n",
-        "=\n",
-        "2a\\int p(\\theta\\mid \\mathcal{D})\\,d\\theta\n",
-        "-\n",
-        "2\\int \\theta p(\\theta\\mid \\mathcal{D})\\,d\\theta.\n",
-        "$$\n",
-        "\n",
-        "由于\n",
-        "\n",
-        "$$\n",
-        "\\int p(\\theta\\mid \\mathcal{D})\\,d\\theta = 1,\n",
-        "$$\n",
-        "\n",
-        "所以\n",
-        "\n",
-        "$$\n",
-        "\\frac{dR(a)}{da}\n",
-        "=\n",
-        "2a - 2\\mathbb{E}[\\theta\\mid \\mathcal{D}].\n",
-        "$$\n",
-        "\n",
-        "令导数为零，得到\n",
-        "\n",
-        "$$\n",
-        "a^\\ast = \\mathbb{E}[\\theta\\mid \\mathcal{D}].\n",
-        "$$\n",
-        "\n",
-        "因此，\n",
-        "\n",
-        "$$\n",
-        "\\boxed{\n",
-        "\\text{平方损失} \\Longrightarrow \\text{后验均值}\n",
-        "}\n",
-        "$$"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### 5.3 绝对损失对应后验中位数\n",
-        "\n",
-        "取绝对损失\n",
-        "\n",
-        "$$\n",
-        "L(a,\\theta) = |a-\\theta|.\n",
-        "$$\n",
-        "\n",
-        "则目标函数为\n",
-        "\n",
-        "$$\n",
-        "R(a)\n",
-        "=\n",
-        "\\int |a-\\theta|\\,p(\\theta\\mid \\mathcal{D})\\,d\\theta.\n",
-        "$$\n",
-        "\n",
-        "将积分拆为两部分：\n",
-        "\n",
-        "$$\n",
-        "R(a)\n",
-        "=\n",
-        "\\int_{-\\infty}^{a} (a-\\theta)\\,p(\\theta\\mid \\mathcal{D})\\,d\\theta\n",
-        "+\n",
-        "\\int_{a}^{\\infty} (\\theta-a)\\,p(\\theta\\mid \\mathcal{D})\\,d\\theta.\n",
-        "$$\n",
-        "\n",
-        "对 $a$ 求导：\n",
-        "\n",
-        "$$\n",
-        "\\frac{dR(a)}{da}\n",
-        "=\n",
-        "\\int_{-\\infty}^{a} p(\\theta\\mid \\mathcal{D})\\,d\\theta\n",
-        "-\n",
-        "\\int_{a}^{\\infty} p(\\theta\\mid \\mathcal{D})\\,d\\theta.\n",
-        "$$\n",
-        "\n",
-        "令导数为零，得\n",
-        "\n",
-        "$$\n",
-        "\\int_{-\\infty}^{a^\\ast} p(\\theta\\mid \\mathcal{D})\\,d\\theta\n",
-        "=\n",
-        "\\int_{a^\\ast}^{\\infty} p(\\theta\\mid \\mathcal{D})\\,d\\theta\n",
-        "=\n",
-        "\\frac{1}{2}.\n",
-        "$$\n",
-        "\n",
-        "这正说明 $a^\\ast$ 是后验分布的中位数。因此\n",
-        "\n",
-        "$$\n",
-        "\\boxed{\n",
-        "\\text{绝对损失} \\Longrightarrow \\text{后验中位数}\n",
-        "}\n",
-        "$$"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### 5.4 $0$-$1$ 损失对应后验众数（MAP）\n",
-        "\n",
-        "设损失函数为\n",
-        "\n",
-        "$$\n",
-        "L(a,\\theta)\n",
-        "=\n",
-        "\\begin{cases}\n",
-        "0, & a=\\theta,\\\\\n",
-        "1, & a\\neq \\theta.\n",
-        "\\end{cases}\n",
-        "$$\n",
-        "\n",
-        "则后验期望损失为\n",
-        "\n",
-        "$$\n",
-        "R(a)\n",
-        "=\n",
-        "\\int L(a,\\theta)p(\\theta\\mid \\mathcal{D})\\,d\\theta\n",
-        "=\n",
-        "1 - p(a\\mid \\mathcal{D})\n",
-        "$$\n",
-        "\n",
-        "（在离散情形下严格成立；连续情形中对应“选取使后验密度最大的点”这一极限思想）。\n",
-        "\n",
-        "因此最小化 $R(a)$ 等价于最大化 $p(a\\mid \\mathcal{D})$，从而\n",
-        "\n",
-        "$$\n",
-        "a^\\ast\n",
-        "=\n",
-        "\\arg\\max_a p(a\\mid \\mathcal{D}).\n",
-        "$$\n",
-        "\n",
-        "这就是后验众数，即 MAP：\n",
-        "\n",
-        "$$\n",
-        "\\boxed{\n",
-        "\\text{$0$-$1$ 损失} \\Longrightarrow \\text{后验众数（MAP）}\n",
-        "}\n",
-        "$$"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "## 6. 点估计与完整分布的对比\n",
-        "\n",
-        "| 方法 | 输出 | 特点 |\n",
-        "|---|---|---|\n",
-        "| MLE | 一个点 $\\hat{\\theta}_{\\mathrm{MLE}}$ | 仅依赖数据；实现简单；不直接表达不确定性 |\n",
-        "| MAP | 一个点 $\\hat{\\theta}_{\\mathrm{MAP}}$ | 在 MLE 基础上结合先验；小样本更稳健；对应正则化 |\n",
-        "| Bayesian | 整个后验分布 $p(\\theta\\mid \\mathcal{D})$ | 能表达参数不确定性；可构造可信区间与后验预测分布；更完整但计算更复杂 |"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "## 7. 三者关系的统一总结\n",
-        "\n",
-        "### 7.1 从优化角度看\n",
-        "\n",
-        "- **MLE**\n",
-        "\n",
-        "$$\n",
-        "\\hat{\\theta}_{\\mathrm{MLE}}\n",
-        "=\n",
-        "\\arg\\min_{\\theta}\n",
-        "\\big[-\\log p(\\mathcal{D}\\mid \\theta)\\big].\n",
-        "$$\n",
-        "\n",
-        "- **MAP**\n",
-        "\n",
-        "$$\n",
-        "\\hat{\\theta}_{\\mathrm{MAP}}\n",
-        "=\n",
-        "\\arg\\min_{\\theta}\n",
-        "\\big[-\\log p(\\mathcal{D}\\mid \\theta)-\\log p(\\theta)\\big].\n",
-        "$$\n",
-        "\n",
-        "- **Bayesian**\n",
-        "\n",
-        "$$\n",
-        "p(\\theta\\mid \\mathcal{D})\n",
-        "=\n",
-        "\\frac{p(\\mathcal{D}\\mid \\theta)p(\\theta)}{p(\\mathcal{D})}.\n",
-        "$$"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### 7.2 从“损失函数来源”看\n",
-        "\n",
-        "- 似然决定数据拟合项；\n",
-        "- 先验决定正则项；\n",
-        "- 后验结合二者，给出参数不确定性的完整分布。"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### 7.3 从“最终输出”看\n",
-        "\n",
-        "- MLE：输出一个由数据驱动的最优点；\n",
-        "- MAP：输出一个结合了先验约束的最优点；\n",
-        "- Bayes：输出一个完整分布，再根据具体任务与损失函数导出点估计。"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "## 8. 结论\n",
-        "\n",
-        "本文的核心结论可以概括为以下几点：\n",
-        "\n",
-        "1. **MLE 等价于二范数（MSE）的根本原因不是线性，而是高斯噪声假设。**\n",
-        "\n",
-        "$$\n",
-        "\\text{Gaussian noise} \\Longrightarrow -\\log\\text{likelihood} \\propto \\text{squared error}.\n",
-        "$$\n",
-        "\n",
-        "2. **MAP 本质上是在 MLE 上加入先验。**\n",
-        "\n",
-        "$$\n",
-        "L_{\\mathrm{MAP}}(\\theta)= -\\log p(\\mathcal{D}\\mid \\theta)-\\log p(\\theta).\n",
-        "$$\n",
-        "\n",
-        "其中 **正态先验对应 $L_2$ 正则，Laplace 先验对应 $L_1$ 正则。**\n",
-        "\n",
-        "$$\n",
-        "\\text{Gaussian prior} \\Longrightarrow L_2,\n",
-        "\\qquad\n",
-        "\\text{Laplace prior} \\Longrightarrow L_1.\n",
-        "$$\n",
-        "\n",
-        "3. **贝叶斯估计并不只给一个点，而是给整个后验分布。**  \n",
-        "这使得我们能够量化不确定性，并进行后验预测。\n",
-        "\n",
-        "4. **点估计并不是唯一的，而是取决于所采用的损失函数。**\n",
-        "\n",
-        "$$\n",
-        "\\text{平方损失} \\Longrightarrow \\text{后验均值},\\qquad\n",
-        "\\text{绝对损失} \\Longrightarrow \\text{后验中位数},\\qquad\n",
-        "\\text{$0$-$1$ 损失} \\Longrightarrow \\text{后验众数（MAP）}.\n",
-        "$$\n",
-        "\n",
-        "总之，MLE、MAP 与 Bayesian estimation 并不是互相竞争的三套体系，而是一个逐步扩展的统一概率学习框架：\n",
-        "\n",
-        "$$\n",
-        "\\boxed{\n",
-        "\\text{MLE: 数据拟合}\n",
-        "\\quad\\subset\\quad\n",
-        "\\text{MAP: 数据拟合 + 先验约束}\n",
-        "\\quad\\subset\\quad\n",
-        "\\text{Bayes: 完整后验分布与决策}\n",
-        "}\n",
-        "$$"
-      ]
-    }
-  ],
-  "metadata": {
-    "kernelspec": {
-      "display_name": "Python 3",
-      "language": "python",
-      "name": "python3"
-    },
-    "language_info": {
-      "name": "python",
-      "version": "3"
-    }
-  },
-  "nbformat": 4,
-  "nbformat_minor": 5
-}
+# MLE、MAP 与贝叶斯估计  
+## 从二范数、先验到后验分布
+
+**Author: Y.Qiu**
+
+---
+
+## 引言
+
+在统计学习与机器学习中，参数估计常见的三种思想分别是：
+
+- **MLE（Maximum Likelihood Estimation）**
+- **MAP（Maximum A Posteriori）**
+- **Bayesian Estimation（贝叶斯估计）**
+
+统一框架：
+
+$$
+\text{MLE} \rightarrow \text{MAP} \rightarrow \text{Bayesian Estimation}
+$$
+
+---
+
+## 1. MLE
+
+### 定义
+
+$$
+\hat{\theta}_{MLE} = \arg\max p(\mathcal D | \theta)
+$$
+
+等价于：
+
+$$
+\arg\min -\log p(\mathcal D | \theta)
+$$
+
+---
+
+### 高斯噪声 → MSE
+
+$$
+y = f_\theta(x) + \epsilon, \quad \epsilon \sim \mathcal N(0, \sigma^2)
+$$
+
+$$
+\Rightarrow \text{MLE} = \arg\min \sum (y - f_\theta(x))^2
+$$
+
+$$
+\boxed{\text{Gaussian noise} \Rightarrow \text{MSE}}
+$$
+
+---
+
+## 2. MAP
+
+$$
+\hat{\theta}_{MAP} = \arg\max p(\mathcal D | \theta)p(\theta)
+$$
+
+$$
+= \arg\min [-\log p(\mathcal D|\theta) - \log p(\theta)]
+$$
+
+---
+
+### 正态先验 → L2
+
+$$
+\theta \sim \mathcal N(0, \tau^2 I)
+$$
+
+$$
+\Rightarrow \|	heta\|_2^2
+$$
+
+---
+
+### Laplace先验 → L1
+
+$$
+p(\theta) \propto e^{-\lambda \|\theta\|_1}
+$$
+
+---
+
+## 3. Bayes
+
+$$
+p(\theta | \mathcal D) = \frac{p(\mathcal D|\theta)p(\theta)}{p(\mathcal D)}
+$$
+
+输出的是：
+
+$$
+\boxed{\text{posterior distribution}}
+$$
+
+---
+
+## 4. 点估计 vs 分布
+
+| 方法 | 输出 | 特点 |
+|------|------|------|
+| MLE | 点 | 无不确定性 |
+| MAP | 点 | 带先验 |
+| Bayes | 分布 | 可表达不确定性 |
+
+---
+
+## 5. 不同损失对应
+
+- 平方损失 → 后验均值  
+- 绝对损失 → 后验中位数  
+- 0-1损失 → MAP  
+
+---
+
+## 总结
+
+$$
+\text{MLE} \subset \text{MAP} \subset \text{Bayes}
+$$
