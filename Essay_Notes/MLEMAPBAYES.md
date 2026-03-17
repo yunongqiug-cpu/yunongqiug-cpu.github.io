@@ -1,6 +1,6 @@
-**
+
 # Inferring pattern-driving intercellular flows from single-cell and spatial transcriptomics
-**
+
 Almet, A.A., Tsai, YC., Watanabe, M. _et al._ Inferring pattern-driving intercellular flows from single-cell and spatial transcriptomics. _Nat Methods_ **21**, 1806–1817 (2024). https://doi.org/10.1038/s41592-024-02380-w[^0]
 
 [^0]: Almet, A.A., Tsai, YC., Watanabe, M. _et al._ Inferring pattern-driving intercellular flows from single-cell and spatial transcriptomics. _Nat Methods_ **21**, 1806–1817 (2024). https://doi.org/10.1038/s41592-024-02380-w
