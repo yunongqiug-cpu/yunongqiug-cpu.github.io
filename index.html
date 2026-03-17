@@ -1,2 +1,367 @@
-<p>Hello 大家好</p>
-<p>我是Yunong，这是我的个人网站。 </p>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yunong Qiu | Academic Homepage</title>
+  <style>
+    :root {
+      --bg: #f7f8fc;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --accent: #4f46e5;
+      --accent-soft: #eef2ff;
+      --maxw: 1080px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover { text-decoration: underline; }
+
+    .container {
+      width: min(var(--maxw), calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    header {
+      background: linear-gradient(135deg, #eef2ff 0%, #ffffff 55%, #f5f3ff 100%);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 0;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--text);
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 0.95rem;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 28px;
+      padding: 56px 0 48px;
+      align-items: center;
+    }
+
+    .hero-card, .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+    }
+
+    .hero-main {
+      padding: 28px;
+    }
+
+    .hero-main h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.15;
+    }
+
+    .hero-main p {
+      margin: 10px 0;
+      color: var(--muted);
+      font-size: 1.02rem;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 18px 0 0;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .hero-side {
+      padding: 24px;
+    }
+
+    .hero-side h3 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1.05rem;
+    }
+
+    .hero-side ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    main {
+      padding: 36px 0 60px;
+    }
+
+    section {
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      margin: 0 0 14px;
+      font-size: 1.35rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .panel {
+      padding: 22px;
+    }
+
+    .panel h3 {
+      margin: 0 0 8px;
+      font-size: 1.08rem;
+    }
+
+    .panel p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .item {
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.03);
+    }
+
+    .item-title {
+      margin: 0 0 6px;
+      font-weight: 700;
+      font-size: 1.02rem;
+    }
+
+    .item-meta {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-bottom: 8px;
+    }
+
+    .item-desc {
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      padding: 24px 0 40px;
+      font-size: 0.95rem;
+    }
+
+    code.inline {
+      background: #f3f4f6;
+      border-radius: 6px;
+      padding: 2px 6px;
+      font-size: 0.92em;
+    }
+
+    @media (max-width: 860px) {
+      .hero, .grid, .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav class="nav">
+        <div class="brand">Yunong Qiu</div>
+        <div class="nav-links">
+          <a href="#about">About</a>
+          <a href="#research">Research</a>
+          <a href="#notes">Notes</a>
+          <a href="#essays">Essays</a>
+          <a href="#projects">Projects</a>
+          <a href="#contact">Contact</a>
+        </div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-card hero-main">
+          <h1>Yunong Qiu</h1>
+          <p>
+            Master’s student in Applied Mathematics, working at the intersection of
+            <strong>computational biology</strong>, <strong>single-cell / spatial transcriptomics</strong>,
+            and <strong>cell–cell communication to gene regulation modeling</strong>.
+          </p>
+          <p>
+            欢迎来到我的个人主页。这里会整理我的研究方向、项目记录、文章读书笔记，以及一些科研随笔。
+          </p>
+          <div class="tag-row">
+            <span class="tag">Computational Biology</span>
+            <span class="tag">Single-cell</span>
+            <span class="tag">Spatial Transcriptomics</span>
+            <span class="tag">CCC-GRN</span>
+          </div>
+        </div>
+
+        <div class="hero-card hero-side">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="#notes">Read my paper notes</a></li>
+            <li><a href="#projects">View ongoing projects</a></li>
+            <li><a href="#contact">Contact & links</a></li>
+          </ul>
+          <p style="margin-top:16px; color:var(--muted);">
+            你之后只需要继续往仓库里添加 Markdown 页面，并把链接补到这里，就可以不断扩展这个网站。
+          </p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <section id="about">
+        <h2 class="section-title">About</h2>
+        <div class="panel">
+          <p>
+            I am interested in building mathematical and computational models to connect
+            extracellular signaling, transcription factor activity, and downstream gene expression.
+            My recent work focuses on integrating cell–cell communication, gene regulatory networks,
+            perturbation modeling, and spatial reconstruction in single-cell systems.
+          </p>
+        </div>
+      </section>
+
+      <section id="research">
+        <h2 class="section-title">Research Interests</h2>
+        <div class="grid">
+          <div class="panel">
+            <h3>Cell–Cell Communication and GRN Coupling</h3>
+            <p>Linking ligand–receptor signaling to TF activation and target gene responses with interpretable models.</p>
+          </div>
+          <div class="panel">
+            <h3>Single-cell and Spatial Omics</h3>
+            <p>Analyzing spatial transcriptomics, pseudobulk trends, and cell-state transitions in biological systems.</p>
+          </div>
+          <div class="panel">
+            <h3>Mathematical Modeling</h3>
+            <p>Using dynamical systems, diffusion-inspired models, and probabilistic frameworks for biological regulation.</p>
+          </div>
+          <div class="panel">
+            <h3>Computational Methods</h3>
+            <p>Developing robust machine learning pipelines for perturbation prediction, network refinement, and representation learning.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="notes">
+        <h2 class="section-title">Paper Notes</h2>
+        <div class="list">
+          <div class="item">
+            <div class="item-title"><a href="notes/example-paper-note.md">Example Paper Note</a></div>
+            <div class="item-meta">Reading Notes · Markdown Page</div>
+            <p class="item-desc">你可以把每篇文章的笔记单独放在 <code class="inline">notes/</code> 文件夹里，然后在这里添加一个链接。</p>
+          </div>
+          <div class="item">
+            <div class="item-title"><a href="notes/tigon-note.md">TIGON / trajectory and GRN note</a></div>
+            <div class="item-meta">Reading Notes · Placeholder</div>
+            <p class="item-desc">适合整理方法论文：做了什么、核心模型、数学公式、输入输出、和你自己的理解。</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="essays">
+        <h2 class="section-title">Essays & Thoughts</h2>
+        <div class="list">
+          <div class="item">
+            <div class="item-title"><a href="essays/example-essay.md">Example Essay</a></div>
+            <div class="item-meta">Essay · Markdown Page</div>
+            <p class="item-desc">可以放科研随笔、申请思考、读书感想、或者你对某个方向的系统性总结。</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="projects">
+        <h2 class="section-title">Selected Projects</h2>
+        <div class="two-col">
+          <div class="panel">
+            <h3>CCC → TF → Target Modeling</h3>
+            <p>Neural and probabilistic modeling of regulatory cascades from extracellular signaling to downstream gene expression.</p>
+          </div>
+          <div class="panel">
+            <h3>Spatial Reconstruction and Dynamics</h3>
+            <p>Optimal transport and radial mapping based reconstruction for spatial organization and temporal expression trends.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact">
+        <h2 class="section-title">Contact</h2>
+        <div class="panel">
+          <p>Email: <a href="mailto:YunongQiuG@gmail.com">YunongQiuG@gmail.com</a></p>
+          <p>GitHub: <a href="https://github.com/YunongQiu">github.com/YunongQiu</a></p>
+          <p style="margin-top: 12px; color: var(--muted);">
+            之后你也可以在这里加上 CV、Google Scholar、ResearchGate、ORCID、以及 PDF 简历下载链接。
+          </p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      © 2026 Yunong Qiu · Built with GitHub Pages
+    </div>
+  </footer>
+</body>
+</html>
