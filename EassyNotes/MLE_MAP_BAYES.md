@@ -1,4 +1,4 @@
-# MLE、MAP 与贝叶斯估计：  
+# MLE、MAP 与贝叶斯估计：
 ## 从二范数、先验到后验分布
 
 **Author: Y.Qiu**
@@ -35,7 +35,7 @@
 \[
 \mathcal{D} = \{x_1,\dots,x_n\},
 \]
-模型参数为 $\theta$。若已知数据在给定参数 $\theta$ 下的概率模型为 $p(\mathcal{D}\mid \theta)$，则极大似然估计定义为
+模型参数为 $ \theta $ 。若已知数据在给定参数 $ \theta $ 下的概率模型为 $ p(\mathcal{D}\mid \theta) $ ，则极大似然估计定义为
 \[
 \hat{\theta}_{\mathrm{MLE}}
 =
@@ -61,10 +61,10 @@
 \]
 其中：
 
-- $\bm{y}\in\mathbb{R}^n$ 为观测向量；
-- $X\in\mathbb{R}^{n\times d}$ 为设计矩阵；
-- $\bm{\theta}\in\mathbb{R}^d$ 为待估参数；
-- $\bm{\epsilon}$ 为高斯噪声。
+- $ \bm{y}\in\mathbb{R}^n $ 为观测向量；
+- $ X\in\mathbb{R}^{n\times d} $ 为设计矩阵；
+- $ \bm{\theta}\in\mathbb{R}^d $ 为待估参数；
+- $ \bm{\epsilon} $ 为高斯噪声。
 
 由
 \[
@@ -98,7 +98,7 @@ p(\bm{y}\mid \bm{\theta})
 (\bm{y}-X\bm{\theta})^T(\bm{y}-X\bm{\theta}).
 \]
 
-由于第一项与 $\bm{\theta}$ 无关，因此最大化对数似然等价于最小化
+由于第一项与 $ \bm{\theta} $ 无关，因此最大化对数似然等价于最小化
 \[
 (\bm{y}-X\bm{\theta})^T(\bm{y}-X\bm{\theta})
 =
@@ -125,7 +125,7 @@ y_i = f_{\theta}(x_i) + \epsilon_i,
 \qquad
 \epsilon_i \sim \mathcal{N}(0,\sigma^2),
 \]
-无论 $f_{\theta}(x)$ 是线性函数还是非线性函数，都有
+无论 $ f_{\theta}(x) $ 是线性函数还是非线性函数，都有
 \[
 y_i \mid x_i,\theta \sim \mathcal{N}(f_{\theta}(x_i),\sigma^2),
 \]
@@ -172,7 +172,7 @@ p(y_i\mid x_i,\theta)
 
 \textbf{但也要指出：若噪声并非高斯，则 MLE 通常不再对应平方误差。}例如：
 
-- 若 $\epsilon$ 服从 Laplace 分布，则对应 $L_1$ 损失；
+- 若 $ \epsilon $ 服从 Laplace 分布，则对应 $ L_1 $ 损失；
 - 若观测服从 Bernoulli 分布，则对应交叉熵损失；
 - 若观测为计数且服从 Poisson 或 Negative Binomial，则对应 Poisson/NB 的负对数似然，而不是 MSE。
 
@@ -182,7 +182,7 @@ p(y_i\mid x_i,\theta)
 
 ### MAP 的定义
 
-与 MLE 只利用似然不同，MAP 还引入参数先验 $p(\theta)$。根据贝叶斯公式，
+与 MLE 只利用似然不同，MAP 还引入参数先验 $ p(\theta) $ 。根据贝叶斯公式，
 \[
 p(\theta\mid \mathcal{D})
 =
@@ -195,7 +195,7 @@ p(\theta\mid \mathcal{D})
 \arg\max_{\theta} p(\theta\mid \mathcal{D}).
 \]
 
-由于 $p(\mathcal{D})$ 与 $\theta$ 无关，可写为
+由于 $ p(\mathcal{D}) $ 与 $ \theta $ 无关，可写为
 \[
 \hat{\theta}_{\mathrm{MAP}}
 =
@@ -236,7 +236,7 @@ L_{\mathrm{MAP}}(\theta)
 
 MLE 只依赖观测数据。当样本很少时，似然函数往往不稳定，参数估计容易出现高方差、过拟合等问题。
 
-而 MAP 在优化中额外加入了先验项 $-\log p(\theta)$，因此会把参数限制在一个先验认为更合理的区域。这意味着：
+而 MAP 在优化中额外加入了先验项 $ -\log p(\theta) $ ，因此会把参数限制在一个先验认为更合理的区域。这意味着：
 
 - \textbf{小样本时}：先验影响显著，能提高稳定性；
 - \textbf{大样本时}：似然逐渐主导，MAP 往往趋近于 MLE。
@@ -275,7 +275,7 @@ L_{\mathrm{MAP}}(\theta)=\hat{\theta}_{\mathrm{MLE}}-\log p(\theta)
 \]
 下面我们将目光集中在后面关于参数的这一项上。
 
-### 情形一：正态先验 $\Longrightarrow$ $L_2$ 正则
+### 情形一：正态先验 $ \Longrightarrow $ $ L_2 $ 正则
 
 假设参数先验为
 \[
@@ -317,7 +317,7 @@ L_{\mathrm{MAP}}(\bm{\theta})
 \frac{1}{2\tau^2}
 \|\bm{\theta}\|_2^2.
 \]
-两边同乘 $2\sigma^2$，不改变最优解，得
+两边同乘 $ 2\sigma^2 $ ，不改变最优解，得
 \[
 \hat{\bm{\theta}}_{\mathrm{MAP}}
 =
@@ -342,7 +342,7 @@ L_{\mathrm{MAP}}(\bm{\theta})
 }
 \]
 
-### 情形二：Laplace 先验 $\Longrightarrow$ $L_1$ 正则
+### 情形二：Laplace 先验 $ \Longrightarrow $ $ L_1 $ 正则
 
 现在假设各个参数分量独立，且
 \[
@@ -398,7 +398,7 @@ L_{\mathrm{MAP}}(\bm{\theta})
 +
 \lambda \|\bm{\theta}\|_1.
 \]
-乘以 $2\sigma^2$ 后可重写为
+乘以 $ 2\sigma^2 $ 后可重写为
 \[
 \hat{\bm{\theta}}_{\mathrm{MAP}}
 =
@@ -409,7 +409,7 @@ L_{\mathrm{MAP}}(\bm{\theta})
 \lambda' \|\bm{\theta}\|_1
 \right],
 \]
-其中 $\lambda' = 2\sigma^2\lambda$。
+其中 $ \lambda' = 2\sigma^2\lambda $ 。
 
 因此有
 \[
@@ -424,8 +424,8 @@ L_{\mathrm{MAP}}(\bm{\theta})
 
 | \textbf{观测噪声} | \textbf{参数先验} | \textbf{MAP 对应损失} |
 |---|---|---|
-| Gaussian | Gaussian | MSE $+\, L_2$ 正则 |
-| Gaussian | Laplace | MSE $+\, L_1$ 正则 |
+| Gaussian | Gaussian | MSE $ +\, L_2 $ 正则 |
+| Gaussian | Laplace | MSE $ +\, L_1 $ 正则 |
 
 因此可以说：
 \[
@@ -450,7 +450,7 @@ MLE 和 MAP 最终都给出一个参数值：
 - 便于优化与部署；
 - 但无法直接反映不确定性。
 
-例如，若只给出一个参数值 $\hat{\theta}=2.5$，我们并不知道这个估计是“非常确定”还是“其实可能在 $[1.0,4.0]$ 内都合理”。
+例如，若只给出一个参数值 $ \hat{\theta}=2.5 $ ，我们并不知道这个估计是“非常确定”还是“其实可能在 $ [1.0,4.0] $ 内都合理”。
 
 ### 贝叶斯估计给出的是什么？
 
@@ -462,9 +462,9 @@ p(\theta\mid \mathcal{D})
 \]
 这里：
 
-- $p(\theta)$ 表示在看到数据前，对参数的先验认识；
-- $p(\mathcal{D}\mid \theta)$ 表示数据在参数 $\theta$ 下出现的可能性；
-- $p(\theta\mid \mathcal{D})$ 表示看到数据后，对参数不确定性的更新。
+- $ p(\theta) $ 表示在看到数据前，对参数的先验认识；
+- $ p(\mathcal{D}\mid \theta) $ 表示数据在参数 $ \theta $ 下出现的可能性；
+- $ p(\theta\mid \mathcal{D}) $ 表示看到数据后，对参数不确定性的更新。
 
 因此，贝叶斯估计输出的是：
 \[
@@ -478,26 +478,26 @@ p(\theta\mid \mathcal{D})
 \[
 \theta\mid \mathcal{D} \sim \mathcal{N}(2.5,0.1^2),
 \]
-说明参数高度集中在 $2.5$ 附近，不确定性较小；  
+说明参数高度集中在 $ 2.5 $ 附近，不确定性较小；
 而若
 \[
 \theta\mid \mathcal{D} \sim \mathcal{N}(2.5,2^2),
 \]
-则说明虽然均值同样是 $2.5$，但不确定性远大得多。
+则说明虽然均值同样是 $ 2.5 $ ，但不确定性远大得多。
 
 ### 为什么贝叶斯方法能“给出分布”？
 
-这是因为在贝叶斯框架中，参数本身被看作随机变量。  
-先验 $p(\theta)$ 表示参数在观测数据之前可能取哪些值；观测到数据后，用似然对其加权，得到后验：
+这是因为在贝叶斯框架中，参数本身被看作随机变量。
+先验 $ p(\theta) $ 表示参数在观测数据之前可能取哪些值；观测到数据后，用似然对其加权，得到后验：
 \[
 p(\theta\mid \mathcal{D})
 \propto
 p(\mathcal{D}\mid \theta)p(\theta).
 \]
-$p(\theta)$称为先验权重，表示“在看数据之前，我有多相信这个参数值”。
-\\$p(\mathcal{D}\mid \theta)$称为似然权重,表示“如果参数真的是这个值，那么当前数据出现的可能性有多大”。
+$ p(\theta) $ 称为先验权重，表示“在看数据之前，我有多相信这个参数值”。
+\\ $ p(\mathcal{D}\mid \theta) $ 称为似然权重,表示“如果参数真的是这个值，那么当前数据出现的可能性有多大”。
 \\两者相乘就得到“看完数据之后，这个参数值该有多可信”。也就是说，所有可能的参数值都被保留下来，只是其“可信程度”根据数据重新分配了权重。\\\\
-需要进一步说明的是，后验分布 $p(\theta|\mathcal D)$ 的计算来源于贝叶斯公式：
+需要进一步说明的是，后验分布 $ p(\theta|\mathcal D) $ 的计算来源于贝叶斯公式：
 \[
 p(\theta|\mathcal D)
 =
@@ -507,13 +507,13 @@ p(\mathcal D)
 =
 \int p(\mathcal D|\theta)p(\theta)\,d\theta.
 \]
-其中分母 $p(\mathcal D)$ 是对参数空间的积分：
+其中分母 $ p(\mathcal D) $ 是对参数空间的积分：
 \[
 p(\mathcal D) = \int p(\mathcal D|\theta)p(\theta)\,d\theta,
 \]
-通常难以解析计算。因此，在大多数实际问题中，后验分布 $p(\theta|\mathcal D)$ 往往无法得到闭式表达。
+通常难以解析计算。因此，在大多数实际问题中，后验分布 $ p(\theta|\mathcal D) $ 往往无法得到闭式表达。
 
-不过，在某些任务中并不需要显式计算该归一化常数。例如，在求解 MAP（最大后验估计）或进行基于比值的采样方法（如 MCMC）时，由于 $p(\mathcal D)$ 与参数 $\theta$ 无关，可以在优化或计算中忽略，从而仅使用未归一化形式
+不过，在某些任务中并不需要显式计算该归一化常数。例如，在求解 MAP（最大后验估计）或进行基于比值的采样方法（如 MCMC）时，由于 $ p(\mathcal D) $ 与参数 $ \theta $ 无关，可以在优化或计算中忽略，从而仅使用未归一化形式
 \[
 p(\theta|\mathcal D) \propto p(\mathcal D|\theta)p(\theta).
 \]
@@ -539,7 +539,7 @@ p(y^\ast|x^\ast,\mathcal D)
 
 ### 后验预测分布
 
-在实际问题中，我们往往关心新样本 $y^\ast$ 的预测。贝叶斯方法不把参数固定成单一点，而是对所有参数值进行积分平均：
+在实际问题中，我们往往关心新样本 $ y^\ast $ 的预测。贝叶斯方法不把参数固定成单一点，而是对所有参数值进行积分平均：
 \[
 p(y^\ast\mid x^\ast,\mathcal{D})
 =
@@ -556,8 +556,8 @@ p(y^\ast\mid x^\ast,\mathcal{D})
 
 ### 贝叶斯决策论框架
 
-假设我们已经得到了参数的后验分布 $p(\theta\mid \mathcal{D})$。但需要强调的是，在贝叶斯框架中，后验分布 $p(\theta|\mathcal D)$ 已经包含了关于参数的不确定性信息，因此理论上可以直接用于预测（通过后验预测分布）。然而，\textbf{在许多实际任务中（例如回归输出、分类决策或控制问题），仍然需要输出一个具体的数值或决策。}因此，需要在后验分布基础上进一步引入损失函数，并通过最小化后验期望损失来得到点估计。换言之，点估计并不是贝叶斯推断的目标，而是决策过程的结果。
-如果现在想从中提取一个点估计 $a$，则应该最小化该点估计在后验下的\textbf{后验期望损失}：
+假设我们已经得到了参数的后验分布 $ p(\theta\mid \mathcal{D}) $ 。但需要强调的是，在贝叶斯框架中，后验分布 $ p(\theta|\mathcal D) $ 已经包含了关于参数的不确定性信息，因此理论上可以直接用于预测（通过后验预测分布）。然而，\textbf{在许多实际任务中（例如回归输出、分类决策或控制问题），仍然需要输出一个具体的数值或决策。}因此，需要在后验分布基础上进一步引入损失函数，并通过最小化后验期望损失来得到点估计。换言之，点估计并不是贝叶斯推断的目标，而是决策过程的结果。
+如果现在想从中提取一个点估计 $ a$ ，则应该最小化该点估计在后验下的\textbf{后验期望损失}：
 \[
 a^\ast
 =
@@ -570,7 +570,7 @@ L(a,\theta)
 \arg\min_a
 \int L(a,\theta)\,p(\theta\mid \mathcal{D})\,d\theta.
 \]
-不同的损失函数 $L(a,\theta)$ 会给出不同的最优点估计。
+不同的损失函数 $ L(a,\theta) $ 会给出不同的最优点估计。
 
 ### 平方损失对应后验均值
 
@@ -584,7 +584,7 @@ R(a)
 =
 \int (a-\theta)^2 p(\theta\mid \mathcal{D})\,d\theta.
 \]
-对 $a$ 求导：
+对 $ a$ 求导：
 \[
 \frac{dR(a)}{da}
 =
@@ -635,7 +635,7 @@ R(a)
 +
 \int_{a}^{\infty} (\theta-a)\,p(\theta\mid \mathcal{D})\,d\theta.
 \]
-对 $a$ 求导：
+对 $ a$ 求导：
 \[
 \frac{dR(a)}{da}
 =
@@ -651,14 +651,14 @@ R(a)
 =
 \frac{1}{2}.
 \]
-这正说明 $a^\ast$ 是后验分布的中位数。因此
+这正说明 $ a^\ast $ 是后验分布的中位数。因此
 \[
 \boxed{
 \text{绝对损失} \Longrightarrow \text{后验中位数}
 }
 \]
 
-### $0$-$1$ 损失对应后验众数（MAP）
+### $ 0$ -$ 1$ 损失对应后验众数（MAP）
 
 设损失函数为
 \[
@@ -679,7 +679,7 @@ R(a)
 \]
 （在离散情形下严格成立；连续情形中对应“选取使后验密度最大的点”这一极限思想）。
 
-因此最小化 $R(a)$ 等价于最大化 $p(a\mid \mathcal{D})$，从而
+因此最小化 $ R(a) $ 等价于最大化 $ p(a\mid \mathcal{D}) $ ，从而
 \[
 a^\ast
 =
@@ -688,7 +688,7 @@ a^\ast
 这就是后验众数，即 MAP：
 \[
 \boxed{
-\text{$0$-$1$ 损失} \Longrightarrow \text{后验众数（MAP）}
+\text{ $ 0$ -$ 1$ 损失} \Longrightarrow \text{后验众数（MAP）}
 }
 \]
 
@@ -696,9 +696,9 @@ a^\ast
 
 | \textbf{方法} | \textbf{输出} | \textbf{特点} |
 |---|---|---|
-| MLE | 一个点 $\hat{\theta}_{\mathrm{MLE}}$ | 仅依赖数据；实现简单；不直接表达不确定性 |
-| MAP | 一个点 $\hat{\theta}_{\mathrm{MAP}}$ | 在 MLE 基础上结合先验；小样本更稳健；对应正则化 |
-| Bayesian | 整个后验分布 $p(\theta\mid \mathcal{D})$ | 能表达参数不确定性；可构造可信区间与后验预测分布；更完整但计算更复杂 |
+| MLE | 一个点 $ \hat{\theta}_{\mathrm{MLE}} $ | 仅依赖数据；实现简单；不直接表达不确定性 |
+| MAP | 一个点 $ \hat{\theta}_{\mathrm{MAP}} $ | 在 MLE 基础上结合先验；小样本更稳健；对应正则化 |
+| Bayesian | 整个后验分布 $ p(\theta\mid \mathcal{D}) $ | 能表达参数不确定性；可构造可信区间与后验预测分布；更完整但计算更复杂 |
 
 ## 三者关系的统一总结
 
@@ -752,7 +752,7 @@ a^\ast
    \[
    L_{\mathrm{MAP}}(\theta)= -\log p(\mathcal{D}\mid \theta)-\log p(\theta).
    \]
-   其中\textbf{正态先验对应 $L_2$ 正则，Laplace 先验对应 $L_1$ 正则。}
+   其中\textbf{正态先验对应 $ L_2 $ 正则，Laplace 先验对应 $ L_1 $ 正则。}
    \[
    \text{Gaussian prior} \Longrightarrow L_2,
    \qquad
@@ -766,7 +766,7 @@ a^\ast
    \[
    \text{平方损失} \Longrightarrow \text{后验均值},\qquad
    \text{绝对损失} \Longrightarrow \text{后验中位数},\qquad
-   \text{$0$-$1$ 损失} \Longrightarrow \text{后验众数（MAP）}.
+   \text{ $ 0$ -$ 1$ 损失} \Longrightarrow \text{后验众数（MAP）}.
    \]
 
 总之，MLE、MAP 与 Bayesian estimation 并不是互相竞争的三套体系，而是一个逐步扩展的统一概率学习框架：
