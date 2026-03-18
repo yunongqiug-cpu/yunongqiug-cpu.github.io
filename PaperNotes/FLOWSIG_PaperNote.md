@@ -1,7 +1,3 @@
----
-layout: default
-title: FLOWSIG
----
 
 # Inferring pattern-driving intercellular flows from single-cell and spatial transcriptomics
 
