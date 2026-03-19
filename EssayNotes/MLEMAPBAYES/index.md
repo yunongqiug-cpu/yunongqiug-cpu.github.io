@@ -639,22 +639,21 @@ $$
 ### 从优化角度看
 
 - **MLE**
-
-  $$
+$$
   \hat{\theta}_{\mathrm{MLE}} = \arg\min_{\theta} \big[-\log p(\mathcal{D}\mid \theta)\big].
-  $$
+$$
 
 - **MAP**
 
-  $$
+$$
   \hat{\theta}_{\mathrm{MAP}} = \arg\min_{\theta} \big[-\log p(\mathcal{D}\mid \theta)-\log p(\theta)\big].
-  $$
+$$
 
 - **Bayesian**
 
-  $$
+$$
   p(\theta\mid \mathcal{D}) = \frac{p(\mathcal{D}\mid \theta)p(\theta)}{p(\mathcal{D})}.
-  $$
+$$
 
 ### 从“损失函数来源”看
 
@@ -674,30 +673,30 @@ $$
 
 1. **MLE 等价于二范数（MSE）的根本原因不是线性，而是高斯噪声假设。**
 
-   $$
+$$
    \text{Gaussian noise} \Longrightarrow -\log\text{likelihood} \propto \text{squared error}.
-   $$
+$$
 
 2. **MAP 本质上是在 MLE 上加入先验。**
 
-   $$
+$$
    L_{\mathrm{MAP}}(\theta)= -\log p(\mathcal{D}\mid \theta)-\log p(\theta).
-   $$
+$$
 
    其中**正态先验对应 $L_2$ 正则，Laplace 先验对应 $L_1$ 正则。**
 
-   $$
+$$
    \text{Gaussian prior} \Longrightarrow L_2, \qquad \text{Laplace prior} \Longrightarrow L_1.
-   $$
+$$
 
 3. **贝叶斯估计并不只给一个点，而是给整个后验分布。**  
    这使得我们能够量化不确定性，并进行后验预测。
 
 4. **点估计并不是唯一的，而是取决于所采用的损失函数。**
 
-   $$
+$$
    \text{平方损失} \Longrightarrow \text{后验均值},\qquad \text{绝对损失} \Longrightarrow \text{后验中位数},\qquad \text{$0$-$1$ 损失} \Longrightarrow \text{后验众数（MAP）}.
-   $$
+$$
 
 总之，MLE、MAP 与 Bayesian estimation 并不是互相竞争的三套体系，而是一个逐步扩展的统一概率学习框架：
 
