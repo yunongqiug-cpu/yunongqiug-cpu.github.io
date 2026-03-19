@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Understanding MLE, MAP, and Bayesian Estimation
+toc: true
 ---
 
 # Understanding MLE, MAP, and Bayesian Estimation
