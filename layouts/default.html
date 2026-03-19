@@ -3,45 +3,326 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{ page.title }} | Yunong Qiu</title>
+  <title>{% if page.title %}{{ page.title }} | {% endif %}Yunong Qiu</title>
+  <meta name="description" content="{% if page.description %}{{ page.description | escape }}{% else %}Yunong Qiu's academic notes and essays.{% endif %}" />
+
   <style>
-    body {
-      max-width: 860px;
-      margin: 40px auto;
-      padding: 0 20px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
-      line-height: 1.8;
-      color: #1f2937;
-      background: #f8fafc;
+    :root {
+      --bg: #f7f8fc;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --accent: #4f46e5;
+      --accent-soft: #eef2ff;
+      --code-bg: #f3f4f6;
+      --maxw: 920px;
     }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC",
+        "Microsoft YaHei", sans-serif;
+      line-height: 1.8;
+    }
+
     a {
-      color: #4f46e5;
+      color: var(--accent);
       text-decoration: none;
     }
+
     a:hover {
       text-decoration: underline;
     }
-    img {
-      max-width: 100%;
+
+    .page {
+      width: min(var(--maxw), calc(100% - 32px));
+      margin: 32px auto 60px;
     }
-    pre {
-      background: #f3f4f6;
-      padding: 14px;
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .home-link {
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .home-link:hover {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .article {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+      padding: 32px;
+    }
+
+    .article-header {
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .article-title {
+      margin: 0 0 10px;
+      font-size: clamp(1.8rem, 3.6vw, 2.6rem);
+      line-height: 1.2;
+      letter-spacing: 0.2px;
+    }
+
+    .article-meta {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .content h1,
+    .content h2,
+    .content h3,
+    .content h4,
+    .content h5,
+    .content h6 {
+      line-height: 1.35;
+      margin-top: 1.8em;
+      margin-bottom: 0.7em;
+      scroll-margin-top: 24px;
+    }
+
+    .content h1 {
+      font-size: 2rem;
+    }
+
+    .content h2 {
+      font-size: 1.5rem;
+      padding-bottom: 0.25em;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .content h3 {
+      font-size: 1.2rem;
+    }
+
+    .content p {
+      margin: 0.9em 0;
+    }
+
+    .content ul,
+    .content ol {
+      margin: 0.8em 0 1em 1.4em;
+      padding: 0;
+    }
+
+    .content li {
+      margin: 0.35em 0;
+    }
+
+    .content blockquote {
+      margin: 1.2em 0;
+      padding: 0.8em 1em;
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      color: var(--text);
       border-radius: 10px;
+    }
+
+    .content hr {
+      border: 0;
+      border-top: 1px solid var(--line);
+      margin: 2em 0;
+    }
+
+    .content img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 1.2em auto;
+      border-radius: 14px;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+    }
+
+    .content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.2em 0;
+      display: block;
       overflow-x: auto;
     }
-    code {
-      background: #f3f4f6;
-      padding: 2px 6px;
-      border-radius: 6px;
+
+    .content th,
+    .content td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
     }
-    h1, h2, h3 {
-      line-height: 1.35;
+
+    .content th {
+      background: #f9fafb;
+    }
+
+    .content code {
+      background: var(--code-bg);
+      border-radius: 6px;
+      padding: 0.15em 0.4em;
+      font-size: 0.92em;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    .content pre {
+      background: #111827;
+      color: #f9fafb;
+      padding: 16px 18px;
+      border-radius: 14px;
+      overflow-x: auto;
+      line-height: 1.6;
+      margin: 1.2em 0;
+    }
+
+    .content pre code {
+      background: transparent;
+      padding: 0;
+      border-radius: 0;
+      color: inherit;
+      font-size: 0.92em;
+    }
+
+    .footnote {
+      margin-top: 28px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .toc {
+      margin: 0 0 24px;
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fafbff;
+    }
+
+    .toc strong {
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+
+    .toc ul {
+      margin: 0.4em 0 0 1.2em;
+    }
+
+    @media (max-width: 720px) {
+      .article {
+        padding: 22px 18px;
+        border-radius: 18px;
+      }
+
+      .page {
+        width: min(var(--maxw), calc(100% - 20px));
+        margin-top: 20px;
+      }
     }
   </style>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['\\[', '\\]'], ['$$', '$$']]
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
-  <p><a href="/">← Back to Home</a></p>
-  {{ content }}
+  <div class="page">
+    <div class="topbar">
+      <a class="home-link" href="/">← Back to Home</a>
+    </div>
+
+    <article class="article">
+      <header class="article-header">
+        <h1 class="article-title">{{ page.title }}</h1>
+        <div class="article-meta">
+          {% if page.date %}
+            Updated: {{ page.date | date: "%Y-%m-%d" }}
+          {% else %}
+            Academic Notes / Essays
+          {% endif %}
+        </div>
+      </header>
+
+      {% if page.toc %}
+      <nav class="toc">
+        <strong>Contents</strong>
+        <div id="toc-content"></div>
+      </nav>
+      {% endif %}
+
+      <div class="content" id="article-content">
+        {{ content }}
+      </div>
+
+      <div class="footnote">
+        © 2026 Yunong Qiu · Built with GitHub Pages
+      </div>
+    </article>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const article = document.getElementById("article-content");
+      const tocBox = document.getElementById("toc-content");
+
+      if (!article || !tocBox) return;
+
+      const headings = article.querySelectorAll("h2, h3");
+      if (headings.length === 0) {
+        tocBox.parentElement.style.display = "none";
+        return;
+      }
+
+      const ul = document.createElement("ul");
+
+      headings.forEach((heading, idx) => {
+        if (!heading.id) {
+          heading.id = "section-" + idx;
+        }
+        const li = document.createElement("li");
+        if (heading.tagName.toLowerCase() === "h3") {
+          li.style.marginLeft = "1em";
+        }
+        const a = document.createElement("a");
+        a.href = "#" + heading.id;
+        a.textContent = heading.textContent;
+        li.appendChild(a);
+        ul.appendChild(li);
+      });
+
+      tocBox.appendChild(ul);
+    });
+  </script>
 </body>
 </html>
